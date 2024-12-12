@@ -2,7 +2,7 @@ import { Connection, Keypair, VersionedTransaction } from '@solana/web3.js';
 import fetch from 'cross-fetch';
 import { Wallet } from '@project-serum/anchor';
 import bs58 from 'bs58';
-import { transactionSenderAndConfirmationWaiter } from './helpers/transactionSender';
+import { transactionSenderAndConfirmationWaiter } from './helpers/transactionSender.js';
 
 const connection = new Connection(
   'https://neat-hidden-sanctuary.solana-mainnet.discover.quiknode.pro/2af5315d336f9ae920028bbb90a73b724dc1bbed/'
