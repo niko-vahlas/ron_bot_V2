@@ -7,7 +7,6 @@ import { transactionSenderAndConfirmationWaiter } from './helpers/transactionSen
 
 const connection = new Connection('https://api.mainnet-beta.solana.com');
 
-// Return
 export async function swap(inputMint: string, outputMint: string) {
   const mnemonic = process.env.MNEMONIC;
   if (!mnemonic) {
@@ -16,17 +15,33 @@ export async function swap(inputMint: string, outputMint: string) {
   if (!bip39.validateMnemonic(mnemonic)) {
     throw new Error('Invalid mnemonic');
   }
+
   const seed = bip39.mnemonicToSeedSync(mnemonic);
   const derived = derivePath("m/44'/501'/0'/0'", seed.toString('hex'));
   const keypair = Keypair.fromSeed(derived.key);
   const wallet = new Wallet(keypair);
 
+  console.log('Wallet Public Key:', wallet.publicKey.toString());
+
+  // Fetch quote
   const quoteResponse = await (
     await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}\
-      &outputMint=${outputMint}\
-      &amount=100000000\
-      &slippageBps=50`)
+&outputMint=${outputMint}\
+&amount=100000000\
+&slippageBps=50`)
   ).json();
+
+  console.log('Quote Response:', quoteResponse);
+
+  // Ensure quoteResponse is valid
+  if (
+    !quoteResponse ||
+    !quoteResponse.inputMint ||
+    !quoteResponse.outputMint ||
+    !quoteResponse.routePlan
+  ) {
+    throw new Error('Invalid quote response. Missing required fields.');
+  }
 
   const { swapTransaction } = await (
     await fetch('https://quote-api.jup.ag/v6/swap', {
@@ -35,47 +50,33 @@ export async function swap(inputMint: string, outputMint: string) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        // quoteResponse from /quote api
         quoteResponse,
+        // user public key to be used for the swap
         userPublicKey: wallet.publicKey.toString(),
+        // auto wrap and unwrap SOL. default is true
         wrapAndUnwrapSol: true,
+        // feeAccount is optional. Use if you want to charge a fee.  feeBps must have been passed in /quote API.
+        // feeAccount: "fee_account_public_key"
       }),
     })
   ).json();
 
-  // Deserialize the transaction
+  // deserialize the transaction
   const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
-  const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
+  var transaction = VersionedTransaction.deserialize(swapTransactionBuf);
+  console.log(transaction);
 
-  // Sign the transaction
+  // sign the transaction
   transaction.sign([wallet.payer]);
 
-  // Prepare the serialized transaction
-  const rawTransaction = Buffer.from(transaction.serialize());
-
-  // Define blockhashWithExpiryBlockHeight (fetch it beforehand)
-  const recentBlockhashInfo = await connection.getLatestBlockhash();
-  const blockhashWithExpiryBlockHeight = {
-    blockhash: recentBlockhashInfo.blockhash,
-    lastValidBlockHeight: recentBlockhashInfo.lastValidBlockHeight,
-  };
-
-  // Use the transactionSenderAndConfirmationWaiter
-  try {
-    const response = await transactionSenderAndConfirmationWaiter({
-      connection,
-      serializedTransaction: rawTransaction,
-      blockhashWithExpiryBlockHeight,
-    });
-
-    if (response) {
-      console.log(
-        `Transaction successful: https://solscan.io/tx/${response.transaction.signatures[0]}`
-      );
-      return true;
-    } else {
-      console.log('Transaction expired before confirmation.');
-    }
-  } catch (error) {
-    console.error('Error sending and confirming transaction:', error);
-  }
+  // Execute the transaction
+  const rawTransaction = transaction.serialize();
+  const txid = await connection.sendRawTransaction(rawTransaction, {
+    skipPreflight: true,
+    maxRetries: 2,
+  });
+  await connection.confirmTransaction(txid);
+  console.log(`https://solscan.io/tx/${txid}`);
+  return true;
 }
