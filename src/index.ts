@@ -10,7 +10,7 @@ interface AddressesSeenJson {
 }
 
 async function main() {
-  const filePath = path.resolve(__dirname, './contract_addresses_seen.json');
+  const filePath = path.resolve(__dirname, '../contract_addresses_seen.json');
   const fileContents = await readFile(filePath, 'utf8');
   const addressesSeenJson: AddressesSeenJson = JSON.parse(fileContents);
   const addressesSeen = new Set(addressesSeenJson.seenAddresses);
