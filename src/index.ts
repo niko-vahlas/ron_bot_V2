@@ -19,7 +19,6 @@ async function main() {
   const addressesSeenJson: AddressesSeenJson = JSON.parse(fileContents);
   const addressesSeen = new Set(addressesSeenJson.seenAddresses);
 
-  const walletAddress = 'ssssss';
   while (true) {
     const currentContractAddress: string | null = await getContractAddress();
 
