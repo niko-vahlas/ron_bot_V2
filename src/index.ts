@@ -2,8 +2,14 @@ import { getContractAddress } from './notification_logic/getContractAddress.js';
 import { appendToCoinsSeen } from './write_coins_seen.js';
 import * as addressesSeenJson from './contract_addresses_seen.json';
 
+interface AddressesSeenJson {
+  seenAddresses: string[];
+}
+
 async function main() {
-  const addressesSeen = new Set(addressesSeenJson.seenAddresses);
+  const typedAddressesSeenJson: AddressesSeenJson = addressesSeenJson;
+
+  const addressesSeen = new Set(typedAddressesSeenJson.seenAddresses);
   const walletAddress = 'ssssss';
   while (true) {
     const currentContractAddress: string | null = await getContractAddress();
