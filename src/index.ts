@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
 import { getContractAddress } from './notification_logic/getContractAddress.js';
 import path from 'path';
+import * as dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { appendToCoinsSeen } from './write_coins_seen.js';
 const __filename = fileURLToPath(import.meta.url);
@@ -8,6 +9,8 @@ const __dirname = path.dirname(__filename);
 interface AddressesSeenJson {
   seenAddresses: string[];
 }
+
+dotenv.config();
 
 async function main() {
   const filePath = path.resolve(__dirname, '../contract_addresses_seen.json');

@@ -1,18 +1,26 @@
 import { Connection, Keypair, VersionedTransaction } from '@solana/web3.js';
 import fetch from 'cross-fetch';
 import { Wallet } from '@project-serum/anchor';
-import bs58 from 'bs58';
+import bip39 from 'bip39';
+import { derivePath } from 'ed25519-hd-key';
 import { transactionSenderAndConfirmationWaiter } from './helpers/transactionSender.js';
 
-const connection = new Connection(
-  'https://neat-hidden-sanctuary.solana-mainnet.discover.quiknode.pro/2af5315d336f9ae920028bbb90a73b724dc1bbed/'
-);
-
-const secretKey = Buffer.from(bs58.decode(process.env.PRIVATE_KEY || ''));
-const wallet = new Wallet(Keypair.fromSecretKey(secretKey));
+const connection = new Connection('https://api.mainnet-beta.solana.com');
 
 // Return
 export async function swap(inputMint: string, outputMint: string) {
+  const mnemonic = process.env.MNEMONIC;
+  if (!mnemonic) {
+    throw new Error('MNEMONIC environment variable is not set');
+  }
+  if (!bip39.validateMnemonic(mnemonic)) {
+    throw new Error('Invalid mnemonic');
+  }
+  const seed = bip39.mnemonicToSeedSync(mnemonic);
+  const derived = derivePath("m/44'/501'/0'/0'", seed.toString('hex'));
+  const keypair = Keypair.fromSeed(derived.key);
+  const wallet = new Wallet(keypair);
+
   const quoteResponse = await (
     await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}\
       &outputMint=${outputMint}\
