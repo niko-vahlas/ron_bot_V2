@@ -7,7 +7,11 @@ import { transactionSenderAndConfirmationWaiter } from './helpers/transactionSen
 
 const connection = new Connection('https://api.mainnet-beta.solana.com');
 
-export async function swap(inputMint: string, outputMint: string) {
+export async function swap(
+  inputMint: string,
+  outputMint: string,
+  amountToSell: string = '100000000'
+) {
   const mnemonic = process.env.MNEMONIC;
   if (!mnemonic) {
     throw new Error('MNEMONIC environment variable is not set');
@@ -27,7 +31,7 @@ export async function swap(inputMint: string, outputMint: string) {
   const quoteResponse = await (
     await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}\
 &outputMint=${outputMint}\
-&amount=100000000\
+&amount=${amountToSell}\
 &slippageBps=50`)
   ).json();
 
