@@ -85,8 +85,8 @@ def get_ticker():
     if not body or not sender:
             return
 
-    # if not sender == "Moonshot Listings":
-    #     return
+    if not sender == "Moonshot Listings":
+        return
 
     start_keyword = "@moonshot"
     end_keyword = "$"
