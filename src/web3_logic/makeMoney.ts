@@ -44,6 +44,9 @@ export async function makeMoney(contractAddress: string) {
     }
     console.log(`Current price of ${contractAddress} is ${currentPrice}`);
 
+    console.log(
+      `Details of the potential trade. stopLoss: ${stopLoss}, takeProfit: ${takeProfit}, currentPrice: ${currentPrice}`
+    );
     if (currentPrice && currentPrice <= stopLoss) {
       const amountToSell = String(
         getAmountInSmallestUnit(tokenBalance, tokenDecimals)
@@ -70,6 +73,7 @@ export async function makeMoney(contractAddress: string) {
     }
 
     await new Promise((resolve) => setTimeout(resolve, 5000));
+    passCount += 1;
   }
 }
 
