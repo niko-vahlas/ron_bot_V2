@@ -12,10 +12,10 @@ const secretKey = Buffer.from(bs58.decode(process.env.PRIVATE_KEY || ''));
 const wallet = new Wallet(Keypair.fromSecretKey(secretKey));
 
 // Return
-export async function buy(contractAddress: string) {
+export async function swap(inputMint: string, outputMint: string) {
   const quoteResponse = await (
-    await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112\
-      &outputMint=${contractAddress}\
+    await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}\
+      &outputMint=${outputMint}\
       &amount=100000000\
       &slippageBps=50`)
   ).json();

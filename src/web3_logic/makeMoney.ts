@@ -1,12 +1,13 @@
-import { buy } from './buy';
-import { getTokenBalance } from './helpers/getTokenBalance';
-import { getTokenPrice } from './helpers/getTokenPrice';
+import { swap } from './swap.js';
+import { getTokenBalance } from './helpers/getTokenBalance.js';
+import { getTokenPrice } from './helpers/getTokenPrice.js';
 
 export async function makeMoney(
   contractAddress: string,
   walletAddress: string
 ) {
-  const buyResult = await buy(contractAddress);
+  const solana = 'So11111111111111111111111111111111111111112';
+  const buyResult = await swap(solana, contractAddress);
   if (!buyResult) {
     console.log('Buy was unsuccessful');
     return;
