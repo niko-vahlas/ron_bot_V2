@@ -1,19 +1,38 @@
 import { execFile } from 'child_process';
 
 export function getContractAddress(): Promise<string | null> {
-  return new Promise((resolve, reject) => {
-    execFile(
-      'python3',
-      ['dist/notification_logic/get_notification.py'],
-      (error: any, stdout: any, stderr: any) => {
-        if (error) {
-          return reject(error);
+  const platform = process.platform;
+  if (platform === 'darwin') {
+    return new Promise((resolve, reject) => {
+      execFile(
+        'python3',
+        ['dist/notification_logic/get_notification.py'],
+        (error: any, stdout: any, stderr: any) => {
+          if (error) {
+            return reject(error);
+          }
+          if (stderr) {
+            return reject(new Error(stderr));
+          }
+          resolve(stdout.trim());
         }
-        if (stderr) {
-          return reject(new Error(stderr));
+      );
+    });
+  } else {
+    return new Promise((resolve, reject) => {
+      execFile(
+        'python3',
+        ['dist/notification_logic/get_notification_windows.py'],
+        (error: any, stdout: any, stderr: any) => {
+          if (error) {
+            return reject(error);
+          }
+          if (stderr) {
+            return reject(new Error(stderr));
+          }
+          resolve(stdout.trim());
         }
-        resolve(stdout.trim());
-      }
-    );
-  });
+      );
+    });
+  }
 }
