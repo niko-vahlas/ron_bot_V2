@@ -2,10 +2,12 @@ import { Connection, PublicKey } from '@solana/web3.js';
 
 const connection = new Connection('https://api.mainnet-beta.solana.com');
 
-export async function getTokenBalance(
-  walletAddress: string,
-  tokenMintAddress: string
-) {
+export async function getTokenBalance(tokenMintAddress: string) {
+  const walletAddress = process.env.WALLET_ADDRESS;
+  if (typeof walletAddress !== 'string') {
+    console.log('Wallet address not found in process.env');
+    return;
+  }
   try {
     const walletPublicKey = new PublicKey(walletAddress);
     const tokenMintPublicKey = new PublicKey(tokenMintAddress);

@@ -4,6 +4,7 @@ import path from 'path';
 import * as dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { appendToCoinsSeen } from './write_coins_seen.js';
+import { makeMoney } from './web3_logic/makeMoney.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 interface AddressesSeenJson {
@@ -29,6 +30,7 @@ async function main() {
     } else {
       // Buying logic
       // Write to coins_seen
+      await makeMoney(currentContractAddress);
       addressesSeen.add(currentContractAddress);
       await appendToCoinsSeen(addressesSeen);
     }

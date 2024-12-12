@@ -2,10 +2,7 @@ import { swap } from './swap.js';
 import { getTokenBalance } from './helpers/getTokenBalance.js';
 import { getTokenPrice } from './helpers/getTokenPrice.js';
 
-export async function makeMoney(
-  contractAddress: string,
-  walletAddress: string
-) {
+export async function makeMoney(contractAddress: string) {
   const solana = 'So11111111111111111111111111111111111111112';
   const buyResult = await swap(solana, contractAddress);
   if (!buyResult) {
@@ -13,6 +10,7 @@ export async function makeMoney(
     return;
   }
 
+  // Returns price in USD
   const buyPrice = await getTokenPrice(contractAddress);
   if (!buyPrice) {
     console.log('Issue with buy price');
@@ -24,7 +22,7 @@ export async function makeMoney(
 
   let passCount = 0;
   while (passCount < 1800) {
-    const tokenBalance = await getTokenBalance(contractAddress, walletAddress);
+    const tokenBalance = await getTokenBalance(contractAddress);
     if (tokenBalance === 0) {
       console.log('No tokens left to sell');
       break;
