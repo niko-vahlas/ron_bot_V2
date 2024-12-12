@@ -17,11 +17,14 @@ export async function makeMoney(contractAddress: string) {
     console.log('Issue with buy price');
     return;
   }
+  console.log(`Buy price was ${buyPrice}`);
+
   const tokenDecimals = await getTokenDecimals(contractAddress);
   if (!tokenDecimals) {
     console.log('Issue with getting decimal count');
     return;
   }
+  console.log(`Decimal count was ${tokenDecimals}`);
 
   let stopLoss = 0.85 * buyPrice;
   let takeProfit = 1.2 * buyPrice;
@@ -33,11 +36,13 @@ export async function makeMoney(contractAddress: string) {
       console.log('No tokens left to sell');
       break;
     }
+    console.log(`Balance for token ${contractAddress} is ${tokenBalance}`);
 
     let currentPrice = await getTokenPrice(contractAddress);
     if (!currentPrice) {
       console.log("Couldn't get current price");
     }
+    console.log(`Current price of ${contractAddress} is ${currentPrice}`);
 
     if (currentPrice && currentPrice <= stopLoss) {
       const amountToSell = String(
@@ -51,10 +56,13 @@ export async function makeMoney(contractAddress: string) {
       const amountToSell = String(
         getAmountInSmallestUnit(Number(tokenBalance * 0.5), tokenDecimals)
       );
+      console.log(`Amount to sell is ${amountToSell}`);
       const sellResult = await swap(contractAddress, solana, amountToSell);
+      console.log(`Sell result is ${sellResult}`);
       if (!sellResult) {
         console.log('Sell was unsuccessful');
       } else {
+        console.log(`Sell result is ${sellResult}`);
         currentPrice = takeProfit;
         stopLoss = takeProfit * 0.85;
         takeProfit = takeProfit * 1.2;

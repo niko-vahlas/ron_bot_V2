@@ -28,8 +28,6 @@ export async function getTokenCountInWallet(tokenMintAddress: string) {
     // Assuming only one account per token mint; adjust if multiple accounts exist
     const tokenAccountInfo = tokenAccounts.value[0].account.data.parsed.info;
     const balance = tokenAccountInfo.tokenAmount.uiAmount;
-
-    console.log(`Balance for token ${tokenMintAddress}: ${balance}`);
     return balance;
   } catch (error) {
     console.error('Error fetching token balance:', error);
