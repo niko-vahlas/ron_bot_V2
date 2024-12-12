@@ -12,22 +12,33 @@ export async function makeMoney(
     return;
   }
 
-  const buyPrice = getTokenPrice(contractAddress);
+  const buyPrice = await getTokenPrice(contractAddress);
   if (!buyPrice) {
     console.log('Issue with buy price');
-    //REMOVE THIS RETURN
     return;
   }
 
+  const stopLoss = 0.85 * buyPrice;
+  const takeProfit = 1.2 * buyPrice;
+
   let passCount = 0;
-  while (passCount < 500) {
+  while (passCount < 1800) {
     const tokenBalance = await getTokenBalance(contractAddress, walletAddress);
     if (tokenBalance === 0) {
       console.log('No tokens left to sell');
       break;
     }
+
     const currentPrice = await getTokenPrice(contractAddress);
-    if (currentPrice) {
+    if (!currentPrice) {
+      console.log("Couldn't get current price");
+      continue;
+    }
+
+    if (currentPrice <= stopLoss) {
+      // Sell everything
+    } else if (currentPrice > takeProfit) {
+      //Take profit, change our stoploss and and our take profit
     }
 
     await new Promise((resolve) => setTimeout(resolve, 5000));

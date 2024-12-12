@@ -1,27 +1,32 @@
-import fs from 'fs/promises';
+import * as fs from 'fs/promises';
 
-export async function appendToCoinsSeen(contractAddress: string) {
-  const filePath = './contract_addresses_seen.txt';
+export async function appendToCoinsSeen(contractAddresses: Set<string>) {
+  const filePath = './contract_addresses.json';
+
   try {
-    // Check if the file exists, and if not, initialize it
+    let currentContent;
     try {
-      await fs.access(filePath);
+      currentContent = await fs.readFile(filePath, 'utf-8');
+      currentContent = JSON.parse(currentContent);
     } catch {
-      await fs.writeFile(filePath, ''); // Create the file if it doesn't exist
+      currentContent = { seenAddresses: [] };
     }
 
-    // Read the current contents of the file
-    const currentContent = await fs.readFile(filePath, 'utf-8');
+    const updatedAddresses = [
+      ...new Set([...currentContent.seenAddresses, ...contractAddresses]),
+    ];
 
-    // Determine the delimiter (append a comma if not empty)
-    const delimiter = currentContent.trim() ? ',' : '';
-
-    // Append the new contract address
-    await fs.writeFile(
-      filePath,
-      `${currentContent}${delimiter}${contractAddress}`
+    const toWrite = JSON.stringify(
+      {
+        seenAddresses: updatedAddresses,
+      },
+      null,
+      2
     );
-    console.log(`Appended contract address to ${filePath}`);
+
+    await fs.writeFile(filePath, toWrite);
+
+    console.log(`Updated contract addresses in ${filePath}`);
   } catch (error) {
     console.error('Error writing to file:', error);
   }
