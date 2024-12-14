@@ -5,10 +5,25 @@ import { getTokenDecimals } from './helpers/getTokenDecimals.js';
 
 export async function makeMoney(contractAddress: string) {
   const solana = 'So11111111111111111111111111111111111111112';
-  const buyResult = await swap(solana, contractAddress);
-  if (!buyResult) {
-    console.log('Buy was unsuccessful');
-    return;
+  const maxTries = 3;
+  let attempts = 0;
+  let buyResult = null;
+
+  while (attempts < maxTries) {
+    try {
+      buyResult = await swap(solana, contractAddress);
+      if (buyResult) {
+        console.log('Buy was successful');
+        break; // Exit the loop if the operation is successful
+      }
+    } catch (error) {
+      console.error(`Attempt ${attempts + 1} failed with error:`, error);
+    }
+
+    attempts++;
+    if (attempts >= maxTries) {
+      console.log('Buy was unsuccessful after maximum retries');
+    }
   }
 
   // Returns price in USD
@@ -27,7 +42,7 @@ export async function makeMoney(contractAddress: string) {
   console.log(`Decimal count was ${tokenDecimals}`);
 
   let stopLoss = 0.85 * buyPrice;
-  let takeProfit = 1.2 * buyPrice;
+  let takeProfit = 1.08 * buyPrice;
 
   let passCount = 0;
   while (passCount < 1800) {
@@ -68,7 +83,7 @@ export async function makeMoney(contractAddress: string) {
         console.log(`Sell result is ${sellResult}`);
         currentPrice = takeProfit;
         stopLoss = takeProfit * 0.85;
-        takeProfit = takeProfit * 1.2;
+        takeProfit = takeProfit * 1.08;
       }
     }
 
