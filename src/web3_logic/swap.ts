@@ -32,7 +32,7 @@ export async function swap(
     await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}\
 &outputMint=${outputMint}\
 &amount=${amountToSell}\
-&slippageBps=50`)
+&slippageBps=500`)
   ).json();
 
   console.log('Quote Response:', quoteResponse);
