@@ -10,7 +10,7 @@ const connection = new Connection('https://api.mainnet-beta.solana.com');
 export async function swap(
   inputMint: string,
   outputMint: string,
-  amountToSell: string = '400000000'
+  amountToSell: string = '1000000000'
 ) {
   const mnemonic = process.env.MNEMONIC;
   if (!mnemonic) {
